@@ -6,6 +6,8 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);
+var passport = require('passport');
+var authenticate = require('./authenticate')
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -49,56 +51,49 @@ app.use(session({
     store: new FileStore()
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use('/', index);
 app.use('/users', users);
 
 function auth(req, res, next) {
-    console.log(req.session);
+    console.log(req.user);
 
-    if (!req.session.user) {
-        var authHeader = req.headers.authorization;
-        
-        if (!authHeader) {
-            var err = new Error('You are not authenticated!');
-            res.setHeader('WWW-Authenticate', 'Basic');
-            err.status = 403;
-            return next(err);
-        } else {
-            if (req.session.user === 'authenticated') {
-                console.log('req.session: ', req.session);
-                next();
-            } else {
-                var err = new Error('You are not authenticated!');
-                err.status = 403;
-                return next(err);
-            }
-        }
+    if (!req.user) {
+        var err = new Error('You are not authenticated!');
+        res.setHeader('WWW-Authenticate', 'Basic');
+        err.status = 401;
+        next(err);
+    } else {
+        next();
     }
 }
-    app.use(auth);
 
-    app.use(express.static(path.join(__dirname, 'public')));
+app.use(auth);
 
-    app.use('/dishes', dishRouter);
-    app.use('/promotions', promoRouter);
-    app.use('/leaders', leaderRouter);
+app.use(express.static(path.join(__dirname, 'public')));
 
-    // catch 404 and forward to error handler
-    app.use(function (req, res, next) {
-        var err = new Error('Not Found');
-        err.status = 404;
-        next(err);
-    });
+app.use('/dishes', dishRouter);
+app.use('/promotions', promoRouter);
+app.use('/leaders', leaderRouter);
 
-    // error handler
-    app.use(function (err, req, res, next) {
-        // set locals, only providing error in development
-        res.locals.message = err.message;
-        res.locals.error = req.app.get('env') === 'development' ? err : {};
+// catch 404 and forward to error handler
+app.use(function (req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
+});
 
-        // render the error page
-        res.status(err.status || 500);
-        res.render('error');
-    });
+// error handler
+app.use(function (err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-    module.exports = app;
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
+});
+
+module.exports = app;
