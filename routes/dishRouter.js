@@ -112,7 +112,7 @@ dishRouter.route('/:dishId/comments')
                             res.json(dish);
                         }, (err) => next(err));
                 } else {
-                    err = new Error('Dish ', + req.params.dishId + ' not found');
+                    err = new Error('Dish ', +req.params.dishId + ' not found');
                     err.status = 404;
                     return next(err);
                 }
@@ -121,7 +121,7 @@ dishRouter.route('/:dishId/comments')
     })
     .put(authenticate.verifyUser, (req, res, next) => {
         res.statusCode = 403;
-        res.end('PUT operation not supported on /dishes', + req.params.dishId + ' /comments');
+        res.end('PUT operation not supported on /dishes', +req.params.dishId + ' /comments');
     })
     .delete(authenticate.verifyUser, (req, res, next) => {
         Dishes.findById(req.params.dishId)
@@ -187,6 +187,7 @@ dishRouter.route('/:dishId/comments/:commentId')
                             res.setHeader('Content-Type', 'application/json');
                             res.json(dish);
                         }, (err) => next(err));
+
                 } else if (dish == null) {
                     err = new Error('Dish ' + req.params.dishId + ' not found');
                     err.status = 404;
@@ -210,6 +211,7 @@ dishRouter.route('/:dishId/comments/:commentId')
                             res.setHeader('Content-Type', 'application/json');
                             res.json(dish);
                         }, (err) => next(err));
+
                 } else if (dish == null) {
                     err = new Error('Dish ' + req.params.dishId + ' not found');
                     err.status = 404;
