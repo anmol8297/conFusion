@@ -63,7 +63,14 @@ app.use(passport.session());
 app.use('/', index);
 app.use('/users', users);
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '/public')));
+
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, Authorization, Content-Type, Accept');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT, OPTIONS');
+    next();
+});
 
 app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);

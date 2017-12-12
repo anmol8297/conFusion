@@ -17,7 +17,7 @@ leaderRouter.route('/')
             .then((leader) => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.json(leaders);
+                res.json(leader);
             }, (err) => next(err))
             .catch((err) => next(err));
     })
